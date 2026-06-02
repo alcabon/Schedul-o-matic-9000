@@ -5,7 +5,7 @@
     <visible>true</visible>
   </applicationVisibilities>
   <classAccesses>
-    <apexClass>Scheduler</apexClass>
+    <apexClass>SOM_Scheduler</apexClass>
     <enabled>true</enabled>
   </classAccesses>
   <description>Lets a user use the Schedul-o-matic 9000</description>

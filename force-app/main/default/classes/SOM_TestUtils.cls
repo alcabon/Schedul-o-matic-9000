@@ -6,7 +6,7 @@
  */
 
 @IsTest
-public class TestUtils {
+public class SOM_TestUtils {
   static Profile standardUserProfile;
   static PermissionSet thePermissionSet;
 
@@ -16,13 +16,13 @@ public class TestUtils {
 
   static Profile getStandardUserProfile() {
     if (standardUserProfile == null) {
-      standardUserProfile = getProfile('Standard User');
+      // Reuse the running user's profile so this helper is locale-independent.
+      // Querying a standard profile by its localized Name (e.g. 'Standard User')
+      // returns no rows in non-English orgs, and access here is gated solely by
+      // the Schedulomatic9000User permission set — never by the profile.
+      standardUserProfile = new Profile(Id = UserInfo.getProfileId());
     }
     return standardUserProfile;
-  }
-
-  static Profile getProfile(String name) {
-    return [SELECT Id FROM Profile WHERE Name = :name];
   }
 
   static User createTestUser(String name, Profile p) {
@@ -48,15 +48,15 @@ public class TestUtils {
   }
 
   public static void mockApexClasses() {
-    Dao_Test.setRecords(
+    SOM_Dao_Test.setRecords(
       getClassesQuery(),
       (List<ApexClass>) JSON.deserialize(
         '[ {' +
         '"attributes" : {' +
         '"type" : "ApexClass",' +
-        '"url" : "/services/data/v48.0/sobjects/ApexClass/01p1g000002pM1sAAE"' +
+        '"url" : "/services/data/v60.0/sobjects/ApexClass/01p1g000002pM1sAAE"' +
         '},' +
-        '"NamespacePrefix" : "dcstuff",' +
+        '"NamespacePrefix" : null,' +
         '"Name" : "SampleClass",' +
         '"Id" : "01p1g000002pM1sAAE"' +
         '} ]',
@@ -66,7 +66,7 @@ public class TestUtils {
   }
 
   public static void mockNoApexClasses() {
-    Dao_Test.setRecords(
+    SOM_Dao_Test.setRecords(
       getClassesQuery(),
       (List<ApexClass>) JSON.deserialize('[]', List<ApexClass>.class)
     );
@@ -82,15 +82,10 @@ public class TestUtils {
       'Name LIKE \'' +
       newSearchTerm +
       '\' ' +
-      'AND (NamespacePrefix != \'' +
-      Scheduler.NAMESPACE_PREFIX +
-      '\' ' +
-      'OR (NamespacePrefix = \'' +
-      Scheduler.NAMESPACE_PREFIX +
-      '\' ' +
-      'AND Name != \'' +
-      Scheduler.THIS_CLASS +
-      '\')) ' +
+      'AND (NamespacePrefix != null ' +
+      'OR Name != \'' +
+      SOM_Scheduler.THIS_CLASS +
+      '\') ' +
       'ORDER BY Name';
   }
 
@@ -108,9 +103,7 @@ public class TestUtils {
       thePermissionSet = [
         SELECT Id
         FROM PermissionSet
-        WHERE
-          Name = :Scheduler.PERMISSION_SET
-          AND PermissionSet.NamespacePrefix = :Scheduler.NAMESPACE_PREFIX
+        WHERE Name = :SOM_Scheduler.PERMISSION_SET
       ];
     }
     return thePermissionSet;

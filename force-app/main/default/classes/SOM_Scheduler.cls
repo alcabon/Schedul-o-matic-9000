@@ -5,11 +5,9 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 
-public with sharing class Scheduler implements Schedulable {
+public with sharing class SOM_Scheduler implements Schedulable {
   @TestVisible
-  static final String THIS_CLASS = 'Scheduler';
-  @TestVisible
-  static final String NAMESPACE_PREFIX = 'dcstuff';
+  static final String THIS_CLASS = 'SOM_Scheduler';
   @TestVisible
   static final String PERMISSION_SET = 'Schedulomatic9000User';
   @TestVisible
@@ -38,10 +36,7 @@ public with sharing class Scheduler implements Schedulable {
     return ![
         SELECT Id
         FROM PermissionSetAssignment
-        WHERE
-          AssigneeId = :userId
-          AND PermissionSet.Name = :PERMISSION_SET
-          AND PermissionSet.NamespacePrefix = :NAMESPACE_PREFIX
+        WHERE AssigneeId = :userId AND PermissionSet.Name = :PERMISSION_SET
       ]
       .isEmpty();
   }
@@ -84,7 +79,7 @@ public with sharing class Scheduler implements Schedulable {
     List<Map<String, String>> classObjects = new List<Map<String, String>>();
     Savepoint sp = Database.setSavepoint();
 
-    List<ApexClass> classes = (List<ApexClass>) new Dao()
+    List<ApexClass> classes = (List<ApexClass>) new SOM_Dao()
       .getRecords(
         'SELECT NamespacePrefix, Name ' +
         'FROM ApexClass ' +
@@ -92,15 +87,10 @@ public with sharing class Scheduler implements Schedulable {
         'Name LIKE \'' +
         newSearchTerm +
         '\' ' +
-        'AND (NamespacePrefix != \'' +
-        NAMESPACE_PREFIX +
-        '\' ' +
-        'OR (NamespacePrefix = \'' +
-        NAMESPACE_PREFIX +
-        '\' ' +
-        'AND Name != \'' +
+        'AND (NamespacePrefix != null ' +
+        'OR Name != \'' +
         THIS_CLASS +
-        '\')) ' +
+        '\') ' +
         'ORDER BY Name'
       );
 
@@ -220,7 +210,7 @@ public with sharing class Scheduler implements Schedulable {
     return System.schedule(
       jobName,
       startDatetime.format('s m H d M \'?\' yyyy'),
-      new Scheduler(entryId)
+      new SOM_Scheduler(entryId)
     );
   }
 
@@ -234,7 +224,7 @@ public with sharing class Scheduler implements Schedulable {
   Type classToExecute;
 
   @TestVisible
-  Scheduler(Id entryId) {
+  SOM_Scheduler(Id entryId) {
     this.entryId = entryId;
   }
 
@@ -437,7 +427,7 @@ public with sharing class Scheduler implements Schedulable {
 
     Type t = Type.forName(namespacePrefix, name);
     Object o = t.newInstance();
-    ((Schedulable) o).execute(new SchedulableContextInterface9000());
+    ((Schedulable) o).execute(new SOM_SchedulableContext());
   }
 
   @future(callout=true)
@@ -482,7 +472,7 @@ public with sharing class Scheduler implements Schedulable {
 
   void reschedule() {
     updateEntry();
-    Scheduler.schedule(entry.Name, entry.Start__c, entry.Id);
+    SOM_Scheduler.schedule(entry.Name, entry.Start__c, entry.Id);
   }
 
   void updateEntry() {

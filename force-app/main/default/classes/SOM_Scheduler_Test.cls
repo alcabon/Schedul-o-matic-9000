@@ -6,10 +6,10 @@
  */
 
 @IsTest
-class Scheduler_Test {
+class SOM_Scheduler_Test {
   @IsTest
   static void shouldThrowExceptionOnLoadWhenMissingPermissions() {
-    User u = TestUtils.createStandardUser('blah');
+    User u = SOM_TestUtils.createStandardUser('blah');
     insert u;
 
     AuraHandledException auraException;
@@ -17,7 +17,7 @@ class Scheduler_Test {
     Test.startTest();
     System.runAs(u) {
       try {
-        Scheduler.init();
+        SOM_Scheduler.init();
       } catch (AuraHandledException e) {
         auraException = e;
       }
@@ -35,7 +35,7 @@ class Scheduler_Test {
   static void shouldReturnListOfFlows() {
     Test.setMock(
       HttpCalloutMock.class,
-      MockHttpResponse.builder()
+      SOM_MockHttpResponse.builder()
         .contentType('application/json')
         .body(
           '{' +
@@ -65,16 +65,16 @@ class Scheduler_Test {
         )
     );
 
-    User u = TestUtils.createStandardUser('blah');
+    User u = SOM_TestUtils.createStandardUser('blah');
     insert u;
 
-    TestUtils.assignPermissions(u);
+    SOM_TestUtils.assignPermissions(u);
 
     List<Map<String, Object>> flows;
 
     Test.startTest();
     System.runAs(u) {
-      flows = (List<Map<String, Object>>) Scheduler.init();
+      flows = (List<Map<String, Object>>) SOM_Scheduler.init();
       System.assert(!flows.isEmpty(), 'Expected a list of flows');
     }
     Test.stopTest();
@@ -82,11 +82,11 @@ class Scheduler_Test {
 
   @IsTest
   static void shouldGetMatchingClasses() {
-    TestUtils.mockApexClasses();
+    SOM_TestUtils.mockApexClasses();
 
     Test.startTest();
     System.assert(
-      !Scheduler.getClasses('amp').isEmpty(),
+      !SOM_Scheduler.getClasses('amp').isEmpty(),
       'Expected a list of classes'
     );
     Test.stopTest();
@@ -94,11 +94,11 @@ class Scheduler_Test {
 
   @IsTest
   static void shouldGetNoClasses() {
-    TestUtils.mockNoApexClasses();
+    SOM_TestUtils.mockNoApexClasses();
 
     Test.startTest();
     System.assert(
-      Scheduler.getClasses('amp').isEmpty(),
+      SOM_Scheduler.getClasses('amp').isEmpty(),
       'Expected an empty list'
     );
     Test.stopTest();
@@ -106,15 +106,15 @@ class Scheduler_Test {
 
   @IsTest
   static void shouldLogErrorIfUserInactive() {
-    User u = TestUtils.createStandardUser('blah');
+    User u = SOM_TestUtils.createStandardUser('blah');
     insert u;
 
-    TestUtils.assignPermissions(u);
+    SOM_TestUtils.assignPermissions(u);
 
     SchedulomaticEntry__c e;
 
     System.runAs(u) {
-      e = TestUtils.getStarterEntry();
+      e = SOM_TestUtils.getStarterEntry();
       insert e;
     }
 
@@ -122,7 +122,7 @@ class Scheduler_Test {
     update u;
 
     Test.startTest();
-    Scheduler.schedule(e.Name, e.Start__c, e.Id);
+    SOM_Scheduler.schedule(e.Name, e.Start__c, e.Id);
     e = [SELECT NumberOfExecutions__c FROM SchedulomaticEntry__c];
     System.assertEquals(0, e.NumberOfExecutions__c);
     Test.stopTest();
@@ -134,25 +134,25 @@ class Scheduler_Test {
     ];
     System.assertEquals(0, res.NumberOfExecutions__c);
     System.assertEquals(
-      Scheduler.EXECUTION_ERROR_INACTIVE_OWNER,
+      SOM_Scheduler.EXECUTION_ERROR_INACTIVE_OWNER,
       res.ExecutionError__c
     );
   }
 
   @IsTest
   static void shouldLogErrorIfMissingPermissions() {
-    User u = TestUtils.createStandardUser('blah');
+    User u = SOM_TestUtils.createStandardUser('blah');
     insert u;
 
     SchedulomaticEntry__c e;
 
     System.runAs(u) {
-      e = TestUtils.getStarterEntry();
+      e = SOM_TestUtils.getStarterEntry();
       insert e;
     }
 
     Test.startTest();
-    Scheduler.schedule(e.Name, e.Start__c, e.Id);
+    SOM_Scheduler.schedule(e.Name, e.Start__c, e.Id);
     e = [SELECT NumberOfExecutions__c FROM SchedulomaticEntry__c];
     System.assertEquals(0, e.NumberOfExecutions__c);
     Test.stopTest();
@@ -164,27 +164,27 @@ class Scheduler_Test {
     ];
     System.assertEquals(0, res.NumberOfExecutions__c);
     System.assertEquals(
-      Scheduler.EXECUTION_ERROR_MISSING_PERMISSIONS,
+      SOM_Scheduler.EXECUTION_ERROR_MISSING_PERMISSIONS,
       res.ExecutionError__c
     );
   }
 
   @IsTest
   static void shouldNotCrashIfEntryIsDeleted() {
-    User u = TestUtils.createStandardUser('blah');
+    User u = SOM_TestUtils.createStandardUser('blah');
     insert u;
 
     SchedulomaticEntry__c e;
 
     System.runAs(u) {
-      e = TestUtils.getStarterEntry();
+      e = SOM_TestUtils.getStarterEntry();
       insert e;
     }
 
     delete e;
 
     Test.startTest();
-    Scheduler.schedule(e.Name, e.Start__c, e.Id);
+    SOM_Scheduler.schedule(e.Name, e.Start__c, e.Id);
     Test.stopTest();
 
     System.assertEquals(0, [SELECT COUNT() FROM SchedulomaticEntry__c]);
@@ -192,19 +192,19 @@ class Scheduler_Test {
 
   @IsTest
   static void shouldExecuteJobOnce() {
-    User u = TestUtils.createStandardUser('blah');
+    User u = SOM_TestUtils.createStandardUser('blah');
     insert u;
 
-    TestUtils.assignPermissions(u);
+    SOM_TestUtils.assignPermissions(u);
 
     SchedulomaticEntry__c e;
 
     System.runAs(u) {
-      e = TestUtils.getStarterEntry();
+      e = SOM_TestUtils.getStarterEntry();
       insert e;
 
       Test.startTest();
-      Scheduler.schedule(e.Name, e.Start__c, e.Id);
+      SOM_Scheduler.schedule(e.Name, e.Start__c, e.Id);
       e = [SELECT Start__c, NumberOfExecutions__c FROM SchedulomaticEntry__c];
       System.assertEquals(0, e.NumberOfExecutions__c);
       Test.stopTest();
@@ -221,20 +221,20 @@ class Scheduler_Test {
 
   @IsTest
   static void shouldExecuteJobOnceAndRescheduleIn5() {
-    User u = TestUtils.createStandardUser('blah');
+    User u = SOM_TestUtils.createStandardUser('blah');
     insert u;
 
-    TestUtils.assignPermissions(u);
+    SOM_TestUtils.assignPermissions(u);
 
     SchedulomaticEntry__c e;
 
     System.runAs(u) {
-      e = TestUtils.getStarterEntry();
+      e = SOM_TestUtils.getStarterEntry();
       e.RepeatInterval__c = 5;
       insert e;
 
       Test.startTest();
-      Scheduler.schedule(e.Name, e.Start__c, e.Id);
+      SOM_Scheduler.schedule(e.Name, e.Start__c, e.Id);
       Test.stopTest();
     }
 
@@ -251,20 +251,20 @@ class Scheduler_Test {
 
   @IsTest
   static void shouldExecuteJobOnceAndRescheduleForTomorrow() {
-    User u = TestUtils.createStandardUser('blah');
+    User u = SOM_TestUtils.createStandardUser('blah');
     insert u;
 
-    TestUtils.assignPermissions(u);
+    SOM_TestUtils.assignPermissions(u);
 
     SchedulomaticEntry__c e;
 
     System.runAs(u) {
-      e = TestUtils.getStarterEntry();
+      e = SOM_TestUtils.getStarterEntry();
       e.IsDaily__c = true;
       insert e;
 
       Test.startTest();
-      Scheduler.schedule(e.Name, e.Start__c, e.Id);
+      SOM_Scheduler.schedule(e.Name, e.Start__c, e.Id);
       Test.stopTest();
     }
 
@@ -282,9 +282,9 @@ class Scheduler_Test {
 
   @IsTest
   static void shouldKnowIfItShouldRunAgainToday() {
-    Scheduler s = new Scheduler(null);
+    SOM_Scheduler s = new SOM_Scheduler(null);
 
-    s.entry = TestUtils.getStarterEntry();
+    s.entry = SOM_TestUtils.getStarterEntry();
     System.assert(s.isBeforeOrNoEndDateTime());
 
     s.entry.End__c = Datetime.now().addDays(1);
@@ -305,7 +305,7 @@ class Scheduler_Test {
 
   @IsTest
   static void shouldEvaluateDoublesCorrectly() {
-    Scheduler s = new Scheduler(null);
+    SOM_Scheduler s = new SOM_Scheduler(null);
 
     Double d1 = null;
     Double d2 = -1;
@@ -320,7 +320,7 @@ class Scheduler_Test {
 
   @IsTest
   static void shouldEvaluateDecimalsCorrectly() {
-    Scheduler s = new Scheduler(null);
+    SOM_Scheduler s = new SOM_Scheduler(null);
 
     Decimal d1 = null;
     Decimal d2 = -1;
@@ -335,9 +335,9 @@ class Scheduler_Test {
 
   @IsTest
   static void shouldIncrementExecutionsBy1() {
-    Scheduler s = new Scheduler(null);
+    SOM_Scheduler s = new SOM_Scheduler(null);
 
-    s.entry = TestUtils.getStarterEntry();
+    s.entry = SOM_TestUtils.getStarterEntry();
     s.incrementExecutions();
     System.assertEquals(1, s.entry.NumberOfExecutions__c);
 
@@ -347,11 +347,11 @@ class Scheduler_Test {
 
   @IsTest
   static void shouldRescheduleForTomorrow() {
-    Scheduler s = new Scheduler(null);
+    SOM_Scheduler s = new SOM_Scheduler(null);
     Datetime start = Datetime.now().addMinutes(5);
     Datetime endd = Datetime.now().addDays(1);
 
-    ScheduloMaticEntry__c e = TestUtils.getStarterEntry();
+    ScheduloMaticEntry__c e = SOM_TestUtils.getStarterEntry();
     e.Start__c = start;
     e.DailyStartDateTime__c = start;
     e.End__c = endd;
@@ -366,16 +366,16 @@ class Scheduler_Test {
 
   @IsTest
   static void shouldExecuteAnonymousWithoutCrashing() {
-    Test.setMock(HttpCalloutMock.class, MockHttpResponse.builder());
+    Test.setMock(HttpCalloutMock.class, SOM_MockHttpResponse.builder());
 
-    User u = TestUtils.createStandardUser('blah');
+    User u = SOM_TestUtils.createStandardUser('blah');
     insert u;
 
-    TestUtils.assignPermissions(u);
+    SOM_TestUtils.assignPermissions(u);
 
     Test.startTest();
     System.runAs(u) {
-      Scheduler.executeAnonymous('System.debug(\'hey!\')');
+      SOM_Scheduler.executeAnonymous('System.debug(\'hey!\')');
     }
     Test.stopTest();
   }

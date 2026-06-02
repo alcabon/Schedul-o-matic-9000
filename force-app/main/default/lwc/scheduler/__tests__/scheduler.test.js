@@ -8,10 +8,10 @@
 import { createElement } from "lwc";
 import Scheduler from "c/Scheduler";
 import { getNavigateCalledWith } from "lightning/navigation";
-import init from "@salesforce/apex/Scheduler.init";
+import init from "@salesforce/apex/SOM_Scheduler.init";
 
 jest.mock(
-  "@salesforce/apex/Scheduler.init",
+  "@salesforce/apex/SOM_Scheduler.init",
   () => {
     return {
       default: jest.fn()
@@ -51,9 +51,9 @@ describe("c-scheduler", () => {
     init.mockResolvedValue([]);
 
     const NAV_TYPE = "standard__objectPage";
-    const NAV_OBJECT_API_NAME = "dcstuff__SchedulomaticEntry__c";
+    const NAV_OBJECT_API_NAME = "SchedulomaticEntry__c";
     const NAV_ACTION_NAME = "list";
-    const NAV_FILTER_NAME = "dcstuff__All";
+    const NAV_FILTER_NAME = "All";
 
     const element = setupTest();
 

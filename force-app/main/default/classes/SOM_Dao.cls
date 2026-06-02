@@ -5,7 +5,7 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 
-public class Dao {
+public class SOM_Dao {
   @TestVisible
   static Map<String, List<SObject>> recordsMap = new Map<String, List<SObject>>();
 

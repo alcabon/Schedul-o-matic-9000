@@ -12,8 +12,8 @@ import { createRecord } from "lightning/uiRecordApi";
 
 import { showToast } from "c/schedulerUtils";
 
-import init from "@salesforce/apex/Scheduler.init";
-import schedule from "@salesforce/apex/Scheduler.schedule";
+import init from "@salesforce/apex/SOM_Scheduler.init";
+import schedule from "@salesforce/apex/SOM_Scheduler.schedule";
 
 import CLIENT_FORM_FACTOR from "@salesforce/client/formFactor";
 import MISSING_PERMISSIONS_IMAGE from "@salesforce/resourceUrl/Missing_permissions";
@@ -37,7 +37,6 @@ import START_FIELD from "@salesforce/schema/SchedulomaticEntry__c.Start__c";
 
 import labels from "./labels";
 
-const NAMESPACE_PREFIX = "dcstuff";
 const MAIN_OPTION_CLASS = "classes";
 const MAIN_OPTION_FLOW = "flows";
 const MAIN_OPTION_CODE = "code";
@@ -153,11 +152,11 @@ export default class Scheduler extends NavigationMixin(LightningElement) {
     this.entryUrl = await this[NavigationMixin.GenerateUrl]({
       type: "standard__objectPage",
       attributes: {
-        objectApiName: `${NAMESPACE_PREFIX}__SchedulomaticEntry__c`,
+        objectApiName: "SchedulomaticEntry__c",
         actionName: "list"
       },
       state: {
-        filterName: `${NAMESPACE_PREFIX}__All`
+        filterName: "All"
       }
     });
   }

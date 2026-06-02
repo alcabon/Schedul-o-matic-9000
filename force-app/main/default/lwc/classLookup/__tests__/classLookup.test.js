@@ -8,7 +8,7 @@
 import { createElement } from "lwc";
 import ClassLookup from "c/ClassLookup";
 
-import getClasses from "@salesforce/apex/Scheduler.getClasses";
+import getClasses from "@salesforce/apex/SOM_Scheduler.getClasses";
 
 jest.mock(
   "@salesforce/label/c.Class_input_placeholder",
@@ -19,7 +19,7 @@ jest.mock(
 );
 
 jest.mock(
-  "@salesforce/apex/Scheduler.getClasses",
+  "@salesforce/apex/SOM_Scheduler.getClasses",
   () => {
     return {
       default: jest.fn()

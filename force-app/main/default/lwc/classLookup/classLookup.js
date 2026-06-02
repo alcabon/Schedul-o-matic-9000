@@ -10,7 +10,7 @@ import { LightningElement, api } from "lwc";
 import { showToast } from "c/schedulerUtils";
 
 import CLIENT_FORM_FACTOR from "@salesforce/client/formFactor";
-import getClasses from "@salesforce/apex/Scheduler.getClasses";
+import getClasses from "@salesforce/apex/SOM_Scheduler.getClasses";
 
 import labels from "./labels";
 

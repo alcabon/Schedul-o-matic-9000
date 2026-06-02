@@ -6,40 +6,40 @@
  */
 
 @IsTest
-public class MockHttpResponse implements HttpCalloutMock {
+public class SOM_MockHttpResponse implements HttpCalloutMock {
   static List<Mock> mocks;
 
-  public static MockHttpResponse builder() {
+  public static SOM_MockHttpResponse builder() {
     mocks = new List<Mock>{ new Mock() };
-    return new MockHttpResponse();
+    return new SOM_MockHttpResponse();
   }
 
-  public MockHttpResponse next() {
+  public SOM_MockHttpResponse next() {
     mocks.add(new Mock());
     return this;
   }
 
-  public MockHttpResponse statusCode(Integer statusCode) {
+  public SOM_MockHttpResponse statusCode(Integer statusCode) {
     getCurrentResponse().setStatusCode(statusCode);
     return this;
   }
 
-  public MockHttpResponse status(String status) {
+  public SOM_MockHttpResponse status(String status) {
     getCurrentResponse().setStatus(status);
     return this;
   }
 
-  public MockHttpResponse contentType(String contentType) {
+  public SOM_MockHttpResponse contentType(String contentType) {
     getCurrentResponse().setHeader('Content-Type', contentType);
     return this;
   }
 
-  public MockHttpResponse body(String body) {
+  public SOM_MockHttpResponse body(String body) {
     getCurrentResponse().setBody(body);
     return this;
   }
 
-  public MockHttpResponse body(Map<String, Object> body) {
+  public SOM_MockHttpResponse body(Map<String, Object> body) {
     getCurrentResponse().setBody(JSON.serialize(body));
     return this;
   }

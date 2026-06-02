@@ -5,17 +5,10 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 
-@IsTest
-class SchedulableContextInterface9000_Test {
-  @IsTest
-  static void shouldReturnADummyCronTriggerRecordId() {
-    Id expected = CronTrigger.sObjectType.getDescribe()
+public with sharing class SOM_SchedulableContext implements SchedulableContext {
+  public Id getTriggerId() {
+    return CronTrigger.sObjectType.getDescribe()
       .getKeyPrefix()
       .rightPad(15, '0');
-
-    System.assertEquals(
-      expected,
-      new SchedulableContextInterface9000().getTriggerId()
-    );
   }
 }
