@@ -45,13 +45,6 @@ describe("c-class-lookup", () => {
     jest.clearAllMocks();
   });
 
-  // Helper function to wait until the microtask queue is empty. This is needed
-  // for promise timing when calling imperative Apex.
-  function flushPromises() {
-    // eslint-disable-next-line no-undef
-    return new Promise(resolve => setImmediate(resolve));
-  }
-
   it("should be a-ok with no selection", async () => {
     const element = createElement("c-class-lookup", {
       is: ClassLookup
@@ -66,6 +59,7 @@ describe("c-class-lookup", () => {
 
   it("searches for nuthin on input of fewer than 3 characters", async () => {
     jest.useFakeTimers();
+    getClasses.mockResolvedValue(APEX_CLASSES);
 
     const element = createElement("c-class-lookup", {
       is: ClassLookup
@@ -78,9 +72,9 @@ describe("c-class-lookup", () => {
     inputEl.value = "ba";
     inputEl.dispatchEvent(new Event("input"));
 
-    jest.runAllTimers();
+    await jest.runAllTimersAsync();
 
-    expect(setTimeout).not.toBeCalled();
+    expect(getClasses).not.toHaveBeenCalled();
   });
 
   it("searches for classes on input of 3 or more characters", async () => {
@@ -99,10 +93,9 @@ describe("c-class-lookup", () => {
     inputEl.value = "baddabing";
     inputEl.dispatchEvent(new Event("input"));
 
-    jest.runAllTimers();
+    await jest.runAllTimersAsync();
 
-    expect(setTimeout).toHaveBeenLastCalledWith(expect.any(Function), 300);
-    expect(getClasses).toBeCalled();
+    expect(getClasses).toHaveBeenLastCalledWith({ searchTerm: "baddabing" });
   });
 
   it("should do all the things when the keys are pressed", async () => {
@@ -125,8 +118,7 @@ describe("c-class-lookup", () => {
 
     inputEl.value = "cla";
     inputEl.dispatchEvent(new Event("input"));
-    jest.runAllTimers();
-    await flushPromises();
+    await jest.runAllTimersAsync();
 
     e.keyCode = 40;
     inputEl.dispatchEvent(e);
@@ -138,8 +130,7 @@ describe("c-class-lookup", () => {
     expect(combobox.classList).not.toContain("slds-is-open");
 
     inputEl.dispatchEvent(new Event("input"));
-    jest.runAllTimers();
-    await flushPromises();
+    await jest.runAllTimersAsync();
 
     e.keyCode = 40;
     inputEl.dispatchEvent(e);
@@ -179,7 +170,7 @@ describe("c-class-lookup", () => {
     expect(inputEl.placeholder).toBe("Search classes...");
     expect(inputEl.value).toBe("");
 
-    jest.runAllTimers();
+    await jest.runAllTimersAsync();
     expect(mockOptionSelectedHandler).toHaveBeenCalledTimes(2);
 
     optionSelectedEvent = mockOptionSelectedHandler.mock.calls[1][0];
@@ -187,8 +178,7 @@ describe("c-class-lookup", () => {
 
     inputEl.value = "cla";
     inputEl.dispatchEvent(new Event("input"));
-    jest.runAllTimers();
-    await flushPromises();
+    await jest.runAllTimersAsync();
 
     e.keyCode = 40;
     inputEl.dispatchEvent(e);
@@ -207,7 +197,7 @@ describe("c-class-lookup", () => {
     inputEl = element.shadowRoot.querySelector("input");
     expect(inputEl.value).toBe("");
 
-    jest.runAllTimers();
+    await jest.runAllTimersAsync();
     expect(mockOptionSelectedHandler).toHaveBeenCalledTimes(4);
 
     optionSelectedEvent = mockOptionSelectedHandler.mock.calls[3][0];

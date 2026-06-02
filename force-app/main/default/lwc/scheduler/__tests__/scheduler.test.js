@@ -44,7 +44,7 @@ describe("c-scheduler", () => {
   // for promise timing when calling imperative Apex.
   function flushPromises() {
     // eslint-disable-next-line no-undef
-    return new Promise(resolve => setImmediate(resolve));
+    return new Promise(resolve => setTimeout(resolve, 0));
   }
 
   it("should show component with full permissions", async () => {
