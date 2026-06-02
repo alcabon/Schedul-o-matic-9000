@@ -169,7 +169,7 @@
         <trackHistory>false</trackHistory>
         <type>Text</type>
     </nameField>
-    <pluralLabel>Schedul-o-matic Entriess</pluralLabel>
+    <pluralLabel>Schedul-o-matic Entries</pluralLabel>
     <searchLayouts>
         <excludedStandardButtons>New</excludedStandardButtons>
     </searchLayouts>
